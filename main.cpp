@@ -1,82 +1,36 @@
-#ifndef LIBRARY_SYSTEM_HPP
-#define LIBRARY_SYSTEM_HPP
+#include "LibrarySystem.hpp"
 
-#include <iostream>
-#include <string>
-#include <vector>
-#include <memory>
+using namespace std;
 
-// ==========================================
-// 1. ABSTRACTION: Base Class for all Items
-// ==========================================
-class LibraryItem {
-protected:
-    std::string id;
-    std::string title;
-    bool isBorrowed;
+int main() {
+    cout << "=== Welcome to the RTU Student Library Program ===\n" << endl;
 
-public:
-    LibraryItem(std::string itemId, std::string itemTitle) 
-        : id(itemId), title(itemTitle), isBorrowed(false) {}
-        
-    virtual ~LibraryItem() = default; // Virtual destructor for safe dynamic memory
+    // Create some books using smart pointers
+    auto book1 = make_shared<Book>("B01", "Introduction to C++", "Bjarne Stroustrup");
+    auto book2 = make_shared<Book>("B02", "Data Structures & Algorithms", "Thomas Cormen");
 
-    // Pure virtual function making this a truly abstract class
-    virtual void displayDetails() const = 0; 
+    // Display original library stock
+    cout << "--- Current Library Catalog ---" << endl;
+    book1->displayDetails();
+    book2->displayDetails();
 
-    // Getters and Setters
-    std::string getId() const { return id; }
-    std::string getTitle() const { return title; }
-    bool getBorrowStatus() const { return isBorrowed; }
-    void setBorrowStatus(bool status) { isBorrowed = status; }
-};
+    // Create a student object
+    Student student("RTU101", "Nihat Ersishen");
 
-// ==========================================
-// 2. INHERITANCE: Specific Book Type
-// ==========================================
-class Book : public LibraryItem {
-private:
-    std::string author;
+    // Simulating transactions
+    student.borrowItem(book1);
+    student.borrowItem(book1); // Error checking test
 
-public:
-    Book(std::string itemId, std::string itemTitle, std::string itemAuthor)
-        : LibraryItem(itemId, itemTitle), author(itemAuthor) {}
+    // View student status
+    student.displayBorrowed();
 
-    // Overriding the abstract method
-    void displayDetails() const override {
-        std::cout << "[Book] ID: " << id 
-                  << " | Title: " << title 
-                  << " | Author: " << author 
-                  << " | Status: " << (isBorrowed ? "Borrowed" : "Available") 
-                  << std::endl;
-    }
-};
+    // Check book status again
+    cout << "\n--- Updated Library Catalog ---" << endl;
+    book1->displayDetails();
 
-// ==========================================
-// 3. STUDENT CLASS
-// ==========================================
-class Student {
-private:
-    std::string studentId;
-    std::string name;
-    std::vector<std::shared_ptr<LibraryItem>> borrowedItems; // Vector Data Structure
+    // Return the book
+    student.returnItem("B01");
+    student.displayBorrowed();
 
-public:
-    Student(std::string sId, std::string sName) : studentId(sId), name(sName) {}
-
-    std::string getStudentId() const { return studentId; }
-    std::string getName() const { return name; }
-
-    void borrowItem(std::shared_ptr<LibraryItem> item) {
-        if (!item->getBorrowStatus()) {
-            item->setBorrowStatus(true);
-            borrowedItems.push_back(item);
-            std::cout << name << " successfully borrowed: " << item->getTitle() << std::endl;
-        } else {
-            // Future step: Implement custom exception handling here!
-            std::cout << "Error: Item is already borrowed." << std::endl;
-        }
-    }
-};
-
-#endif // LIBRARY_SYSTEM_HPP
+    return 0;
+}
