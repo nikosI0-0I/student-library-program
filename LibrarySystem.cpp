@@ -1,8 +1,8 @@
 #include "LibrarySystem.hpp"
 
-using namespace std; // Sweeps away all the std:: prefixes!
+using namespace std;
 
-// LibraryItem Implementation
+// LibraryItem Logic
 LibraryItem::LibraryItem(string itemId, string itemTitle) 
     : id(itemId), title(itemTitle), isBorrowed(false) {}
 
@@ -11,7 +11,7 @@ string LibraryItem::getTitle() const { return title; }
 bool LibraryItem::getBorrowStatus() const { return isBorrowed; }
 void LibraryItem::setBorrowStatus(bool status) { isBorrowed = status; }
 
-// Book Implementation
+// Book Logic
 Book::Book(string itemId, string itemTitle, string itemAuthor)
     : LibraryItem(itemId, itemTitle), author(itemAuthor) {}
 
@@ -23,7 +23,7 @@ void Book::displayDetails() const {
          << endl;
 }
 
-// Student Implementation
+// Student Logic
 Student::Student(string sId, string sName) : studentId(sId), name(sName) {}
 
 string Student::getStudentId() const { return studentId; }
@@ -35,7 +35,7 @@ void Student::borrowItem(shared_ptr<LibraryItem> item) {
         borrowedItems.push_back(item);
         cout << "\n🎉 " << name << " successfully borrowed: " << item->getTitle() << endl;
     } else {
-        cout << "\n Error: This item is already borrowed by someone else." << endl;
+        cout << "\n⚠️ Error: This item is already borrowed by someone else." << endl;
     }
 }
 
@@ -48,7 +48,7 @@ void Student::returnItem(string itemId) {
             return;
         }
     }
-    cout << "\n Error: You did not borrow an item with ID " << itemId << endl;
+    cout << "\n⚠️ Error: You did not borrow an item with ID " << itemId << endl;
 }
 
 void Student::displayBorrowed() const {

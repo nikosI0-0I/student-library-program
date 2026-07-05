@@ -6,6 +6,7 @@
 #include <vector>
 #include <memory>
 
+// Base abstract class for library items (Abstraction)
 class LibraryItem {
 protected:
     std::string id;
@@ -16,6 +17,7 @@ public:
     LibraryItem(std::string itemId, std::string itemTitle);
     virtual ~LibraryItem() = default;
 
+    // Pure virtual function (Polymorphism)
     virtual void displayDetails() const = 0; 
 
     std::string getId() const;
@@ -24,6 +26,7 @@ public:
     void setBorrowStatus(bool status);
 };
 
+// Derived Book class (Inheritance)
 class Book : public LibraryItem {
 private:
     std::string author;
@@ -33,6 +36,7 @@ public:
     void displayDetails() const override;
 };
 
+// Student Class managing items (Data Structures)
 class Student {
 private:
     std::string studentId;
