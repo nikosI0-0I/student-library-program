@@ -32,6 +32,7 @@
             border-radius: 6px; 
             cursor: pointer; 
             font-weight: bold; 
+            text-align: left;
         }
         .btn:hover { 
             background: #b4befe; 
@@ -52,6 +53,17 @@
             padding: 12px;
             border-radius: 6px;
             border-left: 4px solid #89b4fa;
+        }
+        .error-box {
+            color: #f38ba8; 
+            background: #313244; 
+            padding: 15px; 
+            border-radius: 6px; 
+            border: 1px solid #f38ba8;
+        }
+        .success-text {
+            color: #a6e3a1;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -74,54 +86,98 @@
     </div>
 
     <script>
-        // Real-time asynchronous connection to your C++ Crow Controller!
+        const backendUrl = 'http://localhost:18080';
+
+        // 1. Fetch Catalog Engine
         async function fetchCatalog() {
             const outputDiv = document.getElementById('display-output');
-            outputDiv.innerHTML = "<em>Connecting to C++ backend server and fetching live inventory...</em>";
-
+            outputDiv.innerHTML = "<em>Connecting to C++ backend server...</em>";
             try {
-                // Hits your CROW_ROUTE(app, "/api/catalog")
-                const response = await fetch('http://localhost:18080/api/catalog');
+                const response = await fetch(`${backendUrl}/api/catalog`);
                 
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
 
                 const data = await response.json();
-
                 if (data.length === 0) {
                     outputDiv.innerHTML = "<p>The library catalog is currently empty inside the C++ map storage.</p>";
                     return;
                 }
 
-                // Dynamically build the UI out of the C++ JSON map objects
                 let htmlList = "<h3>Current Stock:</h3><ul>";
                 data.forEach(item => {
-                    htmlList += `<li><strong>ID:</strong> ${item.id} | <strong>Title:</strong> "${item.title}" ✅ Available</li>`;
+                    htmlList += `<li><strong>ID:</strong> ${item.id} | <strong>Title:</strong> "${item.title}"</li>`;
                 });
                 htmlList += "</ul>";
-
                 outputDiv.innerHTML = htmlList;
             } catch (error) {
-                // Friendly warning if the server isn't run or has build compilation problems
-                outputDiv.innerHTML = `
-                    <div style="color: #f38ba8; background: #313244; padding: 15px; border-radius: 6px; border: 1px solid #f38ba8;">
-                        <strong>❌ Connection Error:</strong> Could not pull data from the C++ Crow API.<br>
-                        <small>Please ensure your compiled <code>main</code> executable server is actively running on port 18080.</small>
-                    </div>`;
-                console.error("Error details:", error);
+                showError(outputDiv);
             }
         }
 
-        // Placeholder functions for next milestones (Borrow, Return, Account)
-        function openBorrowModal() {
-            document.getElementById('display-output').innerHTML = "<h3>📥 Borrow Item Workflow</h3><p>Ready to connect to borrow API route next.</p>";
+        // 2. Dynamic Borrow Action
+        async function openBorrowModal() {
+            const studentId = prompt("Enter Student ID (e.g., RTU101):");
+            if (!studentId) return;
+            const bookId = prompt("Enter Book ID to borrow (e.g., B01):");
+            if (!bookId) return;
+
+            const outputDiv = document.getElementById('display-output');
+            outputDiv.innerHTML = "<em>Processing transaction...</em>";
+            try {
+                const response = await fetch(`${backendUrl}/api/borrow/${studentId}/${bookId}`);
+                const result = await response.json();
+                
+                outputDiv.innerHTML = `
+                    <h3>📥 Borrow Status</h3>
+                    <p class="success-text">${result.message}</p>
+                    <p>Check your active C++ terminal/console window to see detailed transaction printouts and real-time validations!</p>
+                `;
+            } catch (error) {
+                showError(outputDiv);
+            }
         }
-        function openReturnModal() {
-            document.getElementById('display-output').innerHTML = "<h3>📤 Return Item Workflow</h3><p>Ready to connect to return API route next.</p>";
+
+        // 3. Dynamic Return Action
+        async function openReturnModal() {
+            const studentId = prompt("Enter Student ID (e.g., RTU101):");
+            if (!studentId) return;
+            const bookId = prompt("Enter Book ID to return (e.g., B01):");
+            if (!bookId) return;
+
+            const outputDiv = document.getElementById('display-output');
+            outputDiv.innerHTML = "<em>Processing transaction...</em>";
+            try {
+                const response = await fetch(`${backendUrl}/api/return/${studentId}/${bookId}`);
+                const result = await response.json();
+                
+                outputDiv.innerHTML = `
+                    <h3>📤 Return Status</h3>
+                    <p class="success-text">${result.message}</p>
+                    <p>Check your active C++ terminal/console window to verify validation and internal map modification results!</p>
+                `;
+            } catch (error) {
+                showError(outputDiv);
+            }
         }
+
+        // 4. Student Profile Dashboard Console view
         function fetchDashboard() {
-            document.getElementById('display-output').innerHTML = "<h3>👤 Student Profile Console</h3><p>Ready to fetch current student active metrics next.</p>";
+            document.getElementById('display-output').innerHTML = `
+                <h3>👤 Student Profile Console</h3>
+                <p><strong>Active Session:</strong> RTU101 - Nihat Ersishen</p>
+                <p style="color: #b4befe;">Metrics and tracking logs print context directly to your hosting backend terminal environment automatically.</p>
+            `;
+        }
+
+        // Helper function for clean error displays
+        function showError(element) {
+            element.innerHTML = `
+                <div class="error-box">
+                    <strong>❌ Connection Error:</strong> Could not reach the C++ Crow API.<br>
+                    <small>Please ensure your compiled backend <code>main.exe</code> program is actively running on port 18080.</small>
+                </div>`;
         }
     </script>
 </body>
