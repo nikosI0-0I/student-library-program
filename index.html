@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RTU Library Dashboard</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background: #1e1e2e; 
+            color: #cdd6f4; 
+            margin: 20px; 
+        }
+        .dashboard { 
+            display: grid; 
+            grid-template-columns: 250px 1fr; 
+            gap: 20px; 
+        }
+        .sidebar { 
+            background: #11111b; 
+            padding: 20px; 
+            border-radius: 10px; 
+        }
+        .btn { 
+            display: block; 
+            width: 100%; 
+            padding: 12px; 
+            margin: 10px 0; 
+            border: none; 
+            background: #89b4fa; 
+            color: #11111b; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-weight: bold; 
+        }
+        .btn:hover { 
+            background: #b4befe; 
+        }
+        .main-panel { 
+            background: #181825; 
+            padding: 20px; 
+            border-radius: 10px; 
+            border: 1px solid #313244; 
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            background: #313244;
+            margin: 8px 0;
+            padding: 12px;
+            border-radius: 6px;
+            border-left: 4px solid #89b4fa;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard">
+        <div class="sidebar">
+            <h3>📚 RTU Library</h3>
+            <button class="btn" onclick="fetchCatalog()">🔍 Browse Catalog</button>
+            <button class="btn" onclick="openBorrowModal()">📥 Borrow Item</button>
+            <button class="btn" onclick="openReturnModal()">📤 Return Item</button>
+            <button class="btn" onclick="fetchDashboard()">👤 My Account</button>
+        </div>
+
+        <div class="main-panel">
+            <h2>Live Inventory Console</h2>
+            <hr style="border-color: #313244;">
+            <div id="display-output">Click a menu action to query the C++ controller database...</div>
+        </div>
+    </div>
+
+    <script>
+        // Real-time asynchronous connection to your C++ Crow Controller!
+        async function fetchCatalog() {
+            const outputDiv = document.getElementById('display-output');
+            outputDiv.innerHTML = "<em>Connecting to C++ backend server and fetching live inventory...</em>";
+
+            try {
+                // Hits your CROW_ROUTE(app, "/api/catalog")
+                const response = await fetch('http://localhost:18080/api/catalog');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.length === 0) {
+                    outputDiv.innerHTML = "<p>The library catalog is currently empty inside the C++ map storage.</p>";
+                    return;
+                }
+
+                // Dynamically build the UI out of the C++ JSON map objects
+                let htmlList = "<h3>Current Stock:</h3><ul>";
+                data.forEach(item => {
+                    htmlList += `<li><strong>ID:</strong> ${item.id} | <strong>Title:</strong> "${item.title}" ✅ Available</li>`;
+                });
+                htmlList += "</ul>";
+
+                outputDiv.innerHTML = htmlList;
+            } catch (error) {
+                // Friendly warning if the server isn't run or has build compilation problems
+                outputDiv.innerHTML = `
+                    <div style="color: #f38ba8; background: #313244; padding: 15px; border-radius: 6px; border: 1px solid #f38ba8;">
+                        <strong>❌ Connection Error:</strong> Could not pull data from the C++ Crow API.<br>
+                        <small>Please ensure your compiled <code>main</code> executable server is actively running on port 18080.</small>
+                    </div>`;
+                console.error("Error details:", error);
+            }
+        }
+
+        // Placeholder functions for next milestones (Borrow, Return, Account)
+        function openBorrowModal() {
+            document.getElementById('display-output').innerHTML = "<h3>📥 Borrow Item Workflow</h3><p>Ready to connect to borrow API route next.</p>";
+        }
+        function openReturnModal() {
+            document.getElementById('display-output').innerHTML = "<h3>📤 Return Item Workflow</h3><p>Ready to connect to return API route next.</p>";
+        }
+        function fetchDashboard() {
+            document.getElementById('display-output').innerHTML = "<h3>👤 Student Profile Console</h3><p>Ready to fetch current student active metrics next.</p>";
+        }
+    </script>
+</body>
+</html>

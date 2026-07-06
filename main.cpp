@@ -1,33 +1,26 @@
-#include "LibrarySystem.cpp"
+#include "crow_all.h"            
+#include "LibrarySystem.cpp"     
+#include "LibraryController.cpp" 
+#include <limits>
 
 using namespace std;
 
 int main() {
-    cout << "=== Welcome to the RTU Student Library Program ===\n" << endl;
+    crow::SimpleApp app; 
+    LibraryController controller;
 
-    // Create library stock
-    auto book1 = make_shared<Book>("B01", "Introduction to C++", "Bjarne Stroustrup");
-    auto book2 = make_shared<Book>("B02", "Data Structures & Algorithms", "Thomas Cormen");
+    // Populate data
+    controller.addBook(make_shared<Book>("B01", "Introduction to C++", "Bjarne Stroustrup"));
+    controller.addBook(make_shared<Book>("B02", "Data Structures & Algorithms", "Thomas Cormen"));
+    controller.addStudent(make_shared<Student>("RTU101", "Nihat Ersishen"));
 
-    // Display library catalog
-    cout << "--- Current Library Catalog ---" << endl;
-    book1->displayDetails();
-    book2->displayDetails();
+    // Route: Sends your book data straight to your browser app
+    CROW_ROUTE(app, "/api/catalog")([&](){
+        return controller.getCatalogDataJson(); 
+    });
 
-    // Create user student instance
-    Student student("RTU101", "Nihat Ersishen");
-
-    // Simulating safe actions
-    student.borrowItem(book1);
-    student.borrowItem(book1); // Intentional error validation test
-
-    student.displayBorrowed();
-
-    cout << "\n--- Updated Library Catalog ---" << endl;
-    book1->displayDetails();
-
-    student.returnItem("B01");
-    student.displayBorrowed();
-
+    // Start the server on port 18080
+    app.port(18080).multithreaded().run();
+    
     return 0;
 }
